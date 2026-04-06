@@ -1,0 +1,30 @@
+{
+  "env": {
+    "node": true,
+    "es2022": true,
+    "mocha": true
+  },
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "globals": {
+    "$": "readonly",
+    "$$": "readonly",
+    "browser": "readonly",
+    "driver": "readonly",
+    "expect": "readonly",
+    "assert": "readonly"
+  },
+  "rules": {
+    "indent": ["error", 2],
+    "linebreak-style": ["error", "unix"],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "no-console": "off",
+    "prefer-const": "error",
+    "no-var": "error"
+  }
+}

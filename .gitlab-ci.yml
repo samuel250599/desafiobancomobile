@@ -1,0 +1,183 @@
+image: node:18
+
+stages:
+  - setup
+  - test
+  - report
+
+variables:
+  APPIUM_VERSION: "2.11.1"
+  ANDROID_PLATFORM: "platform-tools"
+  EMULATOR_NAME: "ci_emulator"
+
+# Cache node_modules for faster pipeline execution
+.node_modules_cache:
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+
+setup:
+  stage: setup
+  extends: .node_modules_cache
+  script:
+    - echo "Installing dependencies..."
+    - npm ci
+    - echo "Installing Appium..."
+    - npm install -g appium@${APPIUM_VERSION}
+    - npm install -g appium-uiautomator2-driver
+    - npm install -g allure-commandline
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 hour
+
+test:android:smoke:
+  stage: test
+  extends: .node_modules_cache
+  needs:
+    - setup
+  before_script:
+    - echo "Setting up Android emulator..."
+    - apt-get update && apt-get install -y android-sdk-platform-tools
+    - appium driver install uiautomator2
+    - appium --base-path=/wd/hub &
+    - sleep 10
+  script:
+    - echo "Running smoke tests on Android..."
+    - npm run test:smoke -- --config config/wdio.android.conf.js
+  after_script:
+    - echo "Stopping Appium..."
+    - pkill -f appium || true
+  artifacts:
+    when: always
+    paths:
+      - allure-results/
+      - screenshots/
+    expire_in: 30 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+test:android:regression:
+  stage: test
+  extends: .node_modules_cache
+  needs:
+    - setup
+  before_script:
+    - echo "Setting up Android emulator..."
+    - apt-get update && apt-get install -y android-sdk-platform-tools
+    - appium driver install uiautomator2
+    - appium --base-path=/wd/hub &
+    - sleep 10
+  script:
+    - echo "Running regression tests on Android..."
+    - npm run test:regression -- --config config/wdio.android.conf.js
+  after_script:
+    - echo "Stopping Appium..."
+    - pkill -f appium || true
+  artifacts:
+    when: always
+    paths:
+      - allure-results/
+      - screenshots/
+    expire_in: 30 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+test:ios:smoke:
+  stage: test
+  extends: .node_modules_cache
+  needs:
+    - setup
+  before_script:
+    - echo "iOS tests require macOS runner with Xcode"
+    - echo "This job is configured for iOS testing"
+    - appium driver install xcuitest
+    - appium --base-path=/wd/hub &
+    - sleep 10
+  script:
+    - echo "Running smoke tests on iOS..."
+    - npm run test:smoke -- --config config/wdio.ios.conf.js
+  after_script:
+    - pkill -f appium || true
+  artifacts:
+    when: always
+    paths:
+      - allure-results/
+      - screenshots/
+    expire_in: 30 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
+  tags:
+    - macos
+    - xcode
+
+generate:allure-report:
+  stage: report
+  needs:
+    - test:android:smoke
+  before_script:
+    - npm install -g allure-commandline
+  script:
+    - echo "Generating Allure report..."
+    - allure generate allure-results --clean -o allure-report
+  artifacts:
+    when: always
+    paths:
+      - allure-report/
+    expire_in: 30 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+pages:
+  stage: report
+  needs:
+    - generate:allure-report
+  script:
+    - mkdir -p public
+    - cp -r allure-report/* public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+# Manual test execution jobs
+test:manual:android:
+  stage: test
+  extends: .node_modules_cache
+  needs:
+    - setup
+  script:
+    - echo "Running manual test suite on Android..."
+    - npm run test -- --config config/wdio.android.conf.js
+  when: manual
+  artifacts:
+    when: always
+    paths:
+      - allure-results/
+
+test:manual:ios:
+  stage: test
+  extends: .node_modules_cache
+  needs:
+    - setup
+  script:
+    - echo "Running manual test suite on iOS..."
+    - npm run test -- --config config/wdio.ios.conf.js
+  when: manual
+  tags:
+    - macos
+    - xcode
+  artifacts:
+    when: always
+    paths:
+      - allure-results/

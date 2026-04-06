@@ -1,0 +1,77 @@
+{
+  "users": {
+    "valid": {
+      "email": "test@example.com",
+      "password": "Test1234!"
+    },
+    "admin": {
+      "email": "admin@example.com",
+      "password": "Admin1234!"
+    },
+    "invalid": {
+      "email": "invalid-email",
+      "password": "short"
+    },
+    "empty": {
+      "email": "",
+      "password": ""
+    },
+    "wrongPassword": {
+      "email": "test@example.com",
+      "password": "WrongPassword123"
+    },
+    "newUsers": [
+      {
+        "email": "newuser1@example.com",
+        "password": "NewUser123!",
+ "confirmPassword": "NewUser123!"
+      },
+      {
+        "email": "newuser2@example.com",
+        "password": "NewUser456!",
+        "confirmPassword": "NewUser456!"
+      },
+      {
+        "email": "newuser3@example.com",
+        "password": "NewUser789!",
+        "confirmPassword": "NewUser789!"
+      }
+    ]
+  },
+  "forms": {
+    "validInput": "Test Input Text",
+    "longInput": "This is a longer input text to test input field handling with more characters",
+    "specialChars": "!@#$%^&*()_+-=[]{}|;':\",./<>?",
+    "numbers": "1234567890",
+    "emptyInput": "",
+    "dropdownOptions": {
+      "option1": "UI Alerter (Alert)",
+      "option2": "UI Commander (Action)",
+      "option3": "UI Linter (Lint)",
+      "option4": "UI Writer (Write)"
+    }
+  },
+  "swipe": {
+    "maxSwipes": 5,
+    "swipeDirection": "left"
+  },
+  "navigation": {
+    "screens": ["Home", "WebView", "Login", "Forms", "Swipe", "Drag"]
+  },
+  "environments": {
+    "android": {
+      "platformName": "Android",
+      "automationName": "UiAutomator2"
+    },
+    "ios": {
+      "platformName": "iOS",
+      "automationName": "XCUITest"
+    }
+  },
+  "timeouts": {
+    "implicit": 10000,
+    "pageLoad": 30000,
+    "script": 30000,
+    "animation": 5000
+  }
+}
