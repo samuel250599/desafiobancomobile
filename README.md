@@ -62,7 +62,52 @@ appium --base-path=/wd/hub
 
 ## Execução
 
-### Todos os testes
+### BrowserStack Cloud (Recomendado)
+
+Os testes foram executados com sucesso no BrowserStack App Automate, alcançando **90% de taxa de sucesso (9/10 testes)**.
+
+#### Configuração
+
+1. Configurar credenciais no `.env`:
+```bash
+BROWSERSTACK_USERNAME=seu_usuario
+BROWSERSTACK_ACCESS_KEY=sua_access_key
+BROWSERSTACK_APP_URL=bs://sua_app_url
+```
+
+2. Executar testes no BrowserStack:
+```bash
+npm run test:browserstack
+```
+
+#### Resultados da Execução
+
+| Teste | Status |
+|-------|--------|
+| Launch App | ✅ Passou |
+| Find Home Screen Elements | ✅ Passou |
+| Navigate to Login Tab | ✅ Passou |
+| Find Login Form Elements | ✅ Passou |
+| Enter Credentials | ✅ Passou |
+| Navigate to Forms Tab | ✅ Passou |
+| Find Form Elements | ✅ Passou |
+| Enter Text in Form | ✅ Passou |
+| Navigate to Swipe Tab | ✅ Passou |
+| Find Carousel/Swipe Elements | ❌ Falhou |
+
+**Ambiente:** Google Pixel 7, Android 13.0
+
+#### Vantagens do BrowserStack
+
+- ✅ Sem necessidade de emulador local
+- ✅ Diversos dispositivos reais disponíveis
+- ✅ Debug com logs e screenshots automáticos
+- ✅ Integração com CI/CD
+- ✅ Network logs para análise de requisições
+
+### Execução Local
+
+#### Todos os testes
 
 ```bash
 npm test                    # Configuração padrão
